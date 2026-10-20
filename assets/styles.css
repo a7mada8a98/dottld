@@ -7,8 +7,7 @@
   --line: rgba(23, 25, 19, .15);
   --line-soft: rgba(23, 25, 19, .07);
   --accent: #7c5c1a;
-  --sans: 'Onest', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Lato', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
   --mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, monospace;
   --pad: clamp(20px, 4vw, 64px);
   --maxw: 1280px;
@@ -115,7 +114,7 @@ main {
   align-items: center;
   gap: 12px;
   justify-self: start;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 13px;
   font-weight: 400;
   letter-spacing: .14em;
@@ -214,7 +213,7 @@ main {
 h1 {
   max-width: 22ch;
   margin-top: 20px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: clamp(38px, 10.5vw, 92px);
   font-weight: 300;
   line-height: 1;
@@ -225,7 +224,7 @@ h1 {
 h1 em {
   color: var(--accent);
   font-style: italic;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -.02em;
   white-space: nowrap;
 }
@@ -335,7 +334,7 @@ h1 em {
 
 .section-head h2 {
   margin-top: 16px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: clamp(36px, 4.6vw, 66px);
   font-weight: 300;
   line-height: 1.02;
@@ -369,7 +368,7 @@ h1 em {
 }
 
 .domain-group-head h3 {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: clamp(24px, 2.4vw, 32px);
   font-weight: 300;
   letter-spacing: -.02em;
@@ -460,7 +459,7 @@ h1 em {
   align-items: center;
   gap: 10px;
   color: var(--text-dim);
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 12px;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -599,7 +598,7 @@ h1 em {
 .footer-legal span {
   margin-right: 4px;
   color: var(--text);
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 14px;
   font-style: italic;
   letter-spacing: 0;

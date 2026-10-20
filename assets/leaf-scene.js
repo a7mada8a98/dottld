@@ -111,7 +111,7 @@ function boot(canvas) {
     if (wordsReady) return;
     wordsReady = true;
 
-    var font = 'italic 300 96px "Fraunces", Georgia, serif';
+    var font = 'italic 400 96px "Lato", "Helvetica Neue", sans-serif';
 
     for (var n = 0; n < tlds.length; n++) {
       var tld = tlds[n];
@@ -146,7 +146,7 @@ function boot(canvas) {
   }
 
   if (document.fonts && typeof document.fonts.load === 'function') {
-    document.fonts.load('italic 300 96px "Fraunces"').then(addWords, addWords);
+    document.fonts.load('italic 400 96px "Lato"').then(addWords, addWords);
   } else {
     addWords();
   }
