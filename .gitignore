@@ -1,0 +1,6 @@
+# Private sales data — never publish
+domains.zip
+*.xlsx
+
+# OS noise
+.DS_Store
