@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
-var canvas = document.getElementById('leaf-canvas');
+var canvas = document.getElementById('tld-canvas');
 
 if (canvas) {
   try {
     boot(canvas);
   } catch (err) {
-    console.warn('Leaf background unavailable:', err);
+    console.warn('TLD background unavailable:', err);
     canvas.remove();
   }
 }
@@ -17,7 +17,7 @@ function boot(canvas) {
   var tanHalf = Math.tan(halfFov);
 
   var scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0xf4f1e8, 0.058);
+  scene.fog = new THREE.FogExp2(0x0c0e0c, 0.05);
 
   var camera = new THREE.PerspectiveCamera(fov, 1, 0.1, 80);
   camera.position.set(0, 0, 10);
@@ -30,29 +30,6 @@ function boot(canvas) {
   });
   renderer.setClearColor(0x000000, 0);
 
-  var material = new THREE.MeshBasicMaterial({
-    map: makeLeafTexture(renderer),
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    opacity: 0.78,
-    toneMapped: false
-  });
-
-  var count = window.innerWidth < 720 ? 56 : 120;
-  var geometry = new THREE.PlaneGeometry(1, 1.45);
-  var mesh = new THREE.InstancedMesh(geometry, material, count);
-  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  mesh.frustumCulled = false;
-  scene.add(mesh);
-
-  var rand = mulberry32(0x5eed);
-  var palette = [0x6f7f63, 0x9a7529, 0x8f5a3a, 0x5d6b55, 0x8a6a45];
-  var dummy = new THREE.Object3D();
-  var tint = new THREE.Color();
-  var leaves = [];
-  var words = [];
-  var wordsReady = false;
   var topTlds = ['.com', '.ai', '.si', '.io', '.co', '.xyz', '.net'];
   var tlds = [
     '.com', '.com', '.com',
@@ -65,33 +42,16 @@ function boot(canvas) {
     '.org', '.app', '.dev', '.tech', '.store', '.online',
     '.studio', '.vc', '.gov', '.cloud', '.global'
   ];
-  var wordTints = [0x7c5c1a, 0x5d6b55, 0x8a6a45, 0x63695e];
+  var wordTints = [0xd8d2c0, 0xc9a24a, 0x9fae8e, 0xb9b2a1, 0xd0a44a];
   var wordTextures = {};
-  var i;
+  var words = [];
+  var wordsReady = false;
 
-  function seed(leaf) {
-    leaf.z = 4 - rand() * 16;
-    leaf.halfH = tanHalf * (camera.position.z - leaf.z);
-    leaf.limitY = leaf.halfH * 1.15;
-    leaf.bx = (rand() * 2 - 1) * leaf.halfH * camera.aspect * 1.15;
-    leaf.y = (rand() * 2 - 1) * leaf.limitY;
-    leaf.s = 0.26 + rand() * 0.55;
-    leaf.vy = 0.24 + rand() * 0.42;
-    leaf.sway = 0.25 + rand() * 0.75;
-    leaf.freq = 0.35 + rand() * 0.75;
-    leaf.phase = rand() * Math.PI * 2;
-    leaf.rx = (rand() - 0.5) * 1.1;
-    leaf.ry = (rand() - 0.5) * 1.2;
-    leaf.rz = (rand() - 0.5) * 0.7;
-    leaf.ax = rand() * Math.PI * 2;
-    leaf.ay = rand() * Math.PI * 2;
-    leaf.az = rand() * Math.PI * 2;
-  }
-
-  function reset(leaf) {
-    seed(leaf);
-    leaf.y = leaf.limitY;
-  }
+  var rand = mulberry32(0x5eed);
+  var rafId = null;
+  var paused = false;
+  var last = 0;
+  var elapsed = 0;
 
   function seedWord(word) {
     word.z = 3 - rand() * 15;
@@ -125,7 +85,7 @@ function boot(canvas) {
         map: wordTextures[tld],
         transparent: true,
         depthWrite: false,
-        opacity: isTop ? 0.62 : 0.4,
+        opacity: isTop ? 0.55 : 0.32,
         color: wordTints[n % wordTints.length],
         toneMapped: false
       }));
@@ -151,37 +111,9 @@ function boot(canvas) {
     addWords();
   }
 
-  for (i = 0; i < count; i++) {
-    var leaf = {};
-    seed(leaf);
-    leaves.push(leaf);
-    tint.setHex(palette[(rand() * palette.length) | 0]);
-    mesh.setColorAt(i, tint);
-  }
-  mesh.instanceColor.needsUpdate = true;
-
-  function writeMatrices(t) {
-    for (var n = 0; n < count; n++) {
-      var l = leaves[n];
-      dummy.position.set(l.bx + Math.sin(t * l.freq + l.phase) * l.sway, l.y, l.z);
-      dummy.rotation.set(l.ax + t * l.rx, l.ay + t * l.ry, l.az + t * l.rz);
-      dummy.scale.setScalar(l.s);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(n, dummy.matrix);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
-  }
-
   function update(dt, t) {
-    for (var n = 0; n < count; n++) {
-      var l = leaves[n];
-      l.y -= l.vy * dt;
-      if (l.y < -l.limitY) reset(l);
-    }
-    writeMatrices(t);
-
-    for (var m = 0; m < words.length; m++) {
-      var w = words[m];
+    for (var n = 0; n < words.length; n++) {
+      var w = words[n];
       w.y -= w.vy * dt;
       if (w.y < -w.limitY) {
         seedWord(w);
@@ -201,25 +133,14 @@ function boot(canvas) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, w < 720 ? 1.6 : 2));
     renderer.setSize(w, h, false);
 
-    for (var n = 0; n < leaves.length; n++) {
-      var l = leaves[n];
-      var maxX = l.halfH * camera.aspect * 1.15;
-      if (Math.abs(l.bx) > maxX) l.bx = (rand() * 2 - 1) * maxX;
-    }
-
-    for (var m = 0; m < words.length; m++) {
-      var w = words[m];
-      var wordMaxX = w.halfH * camera.aspect * 1.15;
-      if (Math.abs(w.bx) > wordMaxX) w.bx = (rand() * 2 - 1) * wordMaxX;
+    for (var n = 0; n < words.length; n++) {
+      var word = words[n];
+      var maxX = word.halfH * camera.aspect * 1.15;
+      if (Math.abs(word.bx) > maxX) word.bx = (rand() * 2 - 1) * maxX;
     }
 
     if (paused) renderer.render(scene, camera);
   }
-
-  var rafId = null;
-  var paused = false;
-  var last = 0;
-  var elapsed = 0;
 
   function frame(now) {
     if (rafId === null) return;
@@ -252,7 +173,6 @@ function boot(canvas) {
   });
 
   onResize();
-  writeMatrices(0);
   renderer.render(scene, camera);
   start();
 
@@ -298,52 +218,6 @@ function makeWordTexture(text, font, renderer) {
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.fillText(text, width / 2, height / 2);
-
-  var texture = new THREE.CanvasTexture(c);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  return texture;
-}
-
-function makeLeafTexture(renderer) {
-  var size = 128;
-  var c = document.createElement('canvas');
-  c.width = c.height = size;
-  var g = c.getContext('2d');
-  g.translate(size / 2, size / 2);
-
-  var path = new Path2D();
-  path.moveTo(0, -56);
-  path.bezierCurveTo(24, -38, 34, -8, 21, 24);
-  path.bezierCurveTo(14, 43, 5, 53, 0, 58);
-  path.bezierCurveTo(-5, 53, -14, 43, -21, 24);
-  path.bezierCurveTo(-34, -8, -24, -38, 0, -56);
-  path.closePath();
-
-  var fill = g.createLinearGradient(0, -56, 0, 58);
-  fill.addColorStop(0, '#ffffff');
-  fill.addColorStop(0.45, '#f3efe3');
-  fill.addColorStop(1, '#cfc6ac');
-  g.fillStyle = fill;
-  g.fill(path);
-
-  g.strokeStyle = 'rgba(48, 44, 32, 0.3)';
-  g.lineWidth = 1.4;
-  g.beginPath();
-  g.moveTo(0, -50);
-  g.lineTo(0, 53);
-  g.stroke();
-
-  g.lineWidth = 1;
-  g.beginPath();
-  for (var n = 0; n < 5; n++) {
-    var y = -30 + n * 16;
-    g.moveTo(0, y);
-    g.lineTo(10, y + 9);
-    g.moveTo(0, y);
-    g.lineTo(-10, y + 9);
-  }
-  g.stroke();
 
   var texture = new THREE.CanvasTexture(c);
   texture.colorSpace = THREE.SRGBColorSpace;
