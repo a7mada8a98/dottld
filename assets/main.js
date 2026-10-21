@@ -19,6 +19,7 @@
     var matches = function (row, filter) {
       if (filter === 'all') return true;
       if (filter === 'featured') return row.getAttribute('data-featured') === 'true';
+      if (filter === 'offer') return !row.hasAttribute('data-price');
 
       var length = parseInt(row.getAttribute('data-length'), 10);
       if (filter === '5') return length >= 5;

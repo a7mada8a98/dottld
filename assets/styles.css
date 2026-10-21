@@ -625,38 +625,6 @@ h1 em {
   padding-top: 22px;
 }
 
-.motion-toggle {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  letter-spacing: inherit;
-  cursor: pointer;
-  transition: color .3s var(--ease);
-}
-
-.motion-toggle::before {
-  content: "";
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  margin-right: 8px;
-  border-radius: 50%;
-  vertical-align: 1px;
-  background: var(--accent);
-  box-shadow: 0 0 10px rgba(208, 164, 74, .35);
-  transition: background .3s var(--ease), box-shadow .3s var(--ease);
-}
-
-.motion-toggle[aria-pressed="false"]::before {
-  background: var(--muted);
-  box-shadow: none;
-}
-
-.motion-toggle:hover { color: var(--text); }
-.motion-toggle[hidden] { display: none; }
-
 .footer-legal { color: var(--muted); }
 
 .footer-legal span {

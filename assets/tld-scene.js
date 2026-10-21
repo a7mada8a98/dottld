@@ -49,7 +49,6 @@ function boot(canvas) {
 
   var rand = mulberry32(0x5eed);
   var rafId = null;
-  var paused = false;
   var last = 0;
   var elapsed = 0;
 
@@ -101,8 +100,6 @@ function boot(canvas) {
       scene.add(sprite);
       words.push(word);
     }
-
-    if (paused) renderer.render(scene, camera);
   }
 
   if (document.fonts && typeof document.fonts.load === 'function') {
@@ -138,8 +135,6 @@ function boot(canvas) {
       var maxX = word.halfH * camera.aspect * 1.15;
       if (Math.abs(word.bx) > maxX) word.bx = (rand() * 2 - 1) * maxX;
     }
-
-    if (paused) renderer.render(scene, camera);
   }
 
   function frame(now) {
@@ -154,7 +149,7 @@ function boot(canvas) {
   }
 
   function start() {
-    if (rafId !== null || paused) return;
+    if (rafId !== null) return;
     last = 0;
     rafId = requestAnimationFrame(frame);
   }
@@ -169,35 +164,12 @@ function boot(canvas) {
 
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) stop();
-    else if (!paused) start();
+    else start();
   });
 
   onResize();
   renderer.render(scene, camera);
   start();
-
-  var toggle = document.querySelector('.motion-toggle');
-  if (toggle) {
-    toggle.hidden = false;
-
-    var syncToggle = function () {
-      toggle.textContent = paused ? 'Motion: off' : 'Motion: on';
-      toggle.setAttribute('aria-pressed', String(!paused));
-    };
-
-    toggle.addEventListener('click', function () {
-      paused = !paused;
-      if (paused) {
-        stop();
-        renderer.render(scene, camera);
-      } else {
-        start();
-      }
-      syncToggle();
-    });
-
-    syncToggle();
-  }
 }
 
 function makeWordTexture(text, font, renderer) {
