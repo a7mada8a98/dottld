@@ -586,41 +586,6 @@ h1 em {
   border-color: var(--accent);
 }
 
-.footer-phones {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: 10.5px;
-}
-
-.footer-phone-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.footer-phone-label svg {
-  width: 14px;
-  height: 14px;
-}
-
-.footer-phones a {
-  padding-bottom: 1px;
-  border-bottom: 1px solid var(--line);
-  transition: color .3s var(--ease), border-color .3s var(--ease);
-}
-
-.footer-phones a:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
 .footer-socials {
   display: flex;
   gap: 4px;
